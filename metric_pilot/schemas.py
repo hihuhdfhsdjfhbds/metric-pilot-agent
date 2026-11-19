@@ -64,6 +64,7 @@ class ToolResult(BaseModel):
     guardrail_blocked: bool = False
     rows: int = 0
     elapsed_ms: float = 0.0
+    arguments: dict[str, Any] = Field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------

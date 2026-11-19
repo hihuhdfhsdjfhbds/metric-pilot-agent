@@ -73,15 +73,22 @@ pip install -r requirements.txt
 
 ### 4.2 （可选）配置真实模型
 
-复制 `.env.example` 为 `.env`，填入 `OPENAI_API_KEY` 与模型信息；**不配置也能运行**，
-系统会自动使用内置规则引擎完成全链路演示与测试。
+复制 `.env.example` 为 `.env`，填入模型密钥；**不配置也能运行**，
+系统会自动使用内置规则引擎完成全链路演示与测试。项目通过 OpenAI 兼容协议接入，
+DeepSeek / 通义千问 DashScope / Moonshot / 本地 Ollama 均可。
 
 ```bash
-# 环境变量方式（任选其一）
-export OPENAI_API_KEY=sk-xxxx
-export OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-export METRIC_PILOT_MODEL=qwen-plus
+# .env 示例（DeepSeek）
+OPENAI_BASE_URL=https://api.deepseek.com
+OPENAI_API_KEY=sk-xxxx
+METRIC_PILOT_MODEL=deepseek-chat
+
+# 通义千问 DashScope 示例
+# OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+# METRIC_PILOT_MODEL=qwen-plus
 ```
+
+> `.env` 已在 `.gitignore` 中忽略，密钥不会上传仓库。
 
 ### 4.3 运行诊断（命令行）
 

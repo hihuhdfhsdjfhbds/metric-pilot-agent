@@ -99,6 +99,7 @@ class ToolRegistry:
                 data=data,
                 rows=rows,
                 elapsed_ms=(time.perf_counter() - started) * 1000,
+                arguments=arguments,
             )
         except GuardrailReject as exc:
             return ToolResult(
@@ -107,6 +108,7 @@ class ToolRegistry:
                 error=str(exc),
                 guardrail_blocked=True,
                 elapsed_ms=(time.perf_counter() - started) * 1000,
+                arguments=arguments,
             )
         except Exception as exc:  # noqa: BLE001
             return ToolResult(
@@ -114,6 +116,7 @@ class ToolRegistry:
                 ok=False,
                 error=str(exc),
                 elapsed_ms=(time.perf_counter() - started) * 1000,
+                arguments=arguments,
             )
 
     # ------------------------------------------------------------------

@@ -50,6 +50,16 @@ class ReactAgent:
             state.step = step
             decision = self._decide(metric, anomaly_date, description, state)
 
+            # 确定性去重：已执行过的 (工具, 维度) 组合不再重复调用
+            if decision is not None:
+                signature = (decision.tool.value, str(decision.arguments.get("dimension", "")))
+                executed = {
+                    (obs.tool.value, str(obs.arguments.get("dimension", "")))
+                    for obs in state.observations
+                }
+                if signature in executed:
+                    decision = None
+
             if decision is None:
                 # LLM 认为信息已充分，结束循环
                 state.trace.append({"step": step, "action": "finish"})
@@ -110,6 +120,12 @@ class ReactAgent:
         self, metric: str, anomaly_date: str, description: str, state: ReactState
     ) -> ToolCall | None:
         available = [t["name"] for t in self.tools.tool_schemas()]
+        used_tools = sorted({obs.tool.value for obs in state.observations if obs.ok})
+        used_dims = sorted({
+            str(obs.arguments.get("dimension"))
+            for obs in state.observations
+            if obs.ok and getattr(obs, "arguments", None)
+        })
         messages = [
             {
                 "role": "system",
@@ -117,10 +133,12 @@ class ReactAgent:
                     "你是指标诊断 Agent 的决策器。根据当前已掌握的观察，决定下一步："
                     "要么调用一个工具继续取证，要么当信息充分时结束。"
                     f"可用工具：{available}。若结束，请在 arguments 中给出 finish=true。"
+                    "不要重复调用已经取证过的工具和相同维度；若三类维度都已下钻且基线/案例已查，应尽快结束。"
                 ),
                 "role": "user",
                 "content": (
                     f"指标：{metric}\n日期：{anomaly_date}\n现象：{description}\n"
+                    f"已用工具：{used_tools}\n已下钻维度：{used_dims}\n"
                     f"当前证据：\n{state.evidence_text()}"
                 ),
             }

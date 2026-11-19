@@ -13,6 +13,27 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+
+def _load_dotenv() -> None:
+    """从项目根目录的 ``.env`` 读取键值对写入环境变量（不覆盖已存在的系统变量）。
+
+    纯标准库实现，避免额外依赖；格式与常见 .env 一致：``KEY=VALUE``，
+    支持 ``#`` 注释和首尾引号。
+    """
+    env_path = BASE_DIR / ".env"
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 # ---------------------------------------------------------------------------
 # 路径
 # ---------------------------------------------------------------------------
@@ -21,6 +42,9 @@ DATA_DIR = BASE_DIR / "data"
 BENCHMARK_DIR = DATA_DIR / "benchmark"
 DOCS_DIR = BASE_DIR / "docs"
 
+# 先加载 .env，再读取环境变量
+_load_dotenv()
+
 # ---------------------------------------------------------------------------
 # LLM 接入（OpenAI 兼容协议）
 # ---------------------------------------------------------------------------
@@ -28,7 +52,8 @@ DOCS_DIR = BASE_DIR / "docs"
 LLM_PROVIDER = os.getenv("METRIC_PILOT_LLM", "auto")  # auto | openai | rule
 LLM_MODEL = os.getenv("METRIC_PILOT_MODEL", "qwen-plus")
 LLM_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-LLM_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# 兼容 DashScope 专用变量名；优先 OPENAI_API_KEY
+LLM_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("DASHSCOPE_API_KEY", "")
 LLM_TEMPERATURE = float(os.getenv("METRIC_PILOT_TEMPERATURE", "0.0"))
 LLM_TIMEOUT = int(os.getenv("METRIC_PILOT_TIMEOUT", "30"))
 LLM_MAX_RETRIES = int(os.getenv("METRIC_PILOT_MAX_RETRIES", "2"))
