@@ -1,0 +1,12 @@
+# ---- 核心依赖 ----
+pydantic>=2.0
+pandas>=2.0
+requests>=2.31
+sqlparse>=0.5
+
+# ---- API 服务（可选，运行 FastAPI 时安装）----
+fastapi>=0.110
+uvicorn>=0.29
+
+# ---- 测试 ----
+pytest>=8.0

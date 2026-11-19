@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 本地环境与密钥
+.env
+*.log
+
+# 产物（Benchmark 结果可按需保留，这里默认忽略本地生成的大文件）
+data/benchmark/results.json
+docs/*.png
